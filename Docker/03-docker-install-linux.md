@@ -1,10 +1,10 @@
----
+<!-- ---
 title: 'Install Docker Linux OS'
 categories: [docker,it,install]
 tags: [docker,devops,linux,deploy]
 sidebar_label: 'Install Docker Linux OS'
 sidebar_position: 3
----
+--- -->
 
 ## INSTALL DOCKER CE
 
