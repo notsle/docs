@@ -1,0 +1,67 @@
+services:
+  gluetun:
+    image: qmcgaw/gluetun:v3.38
+    restart: unless-stopped
+    # container_name: gluetun
+    # line above must be uncommented to allow external containers to connect.
+    # See https://github.com/qdm12/gluetun-wiki/blob/main/setup/connect-a-container-to-gluetun.md#external-container-to-gluetun
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    healthcheck:
+      test: '/gluetun-entrypoint healthcheck'
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    ports:
+      - 6881:6881
+      - 6881:6881/udp
+      - 8889:8889 # qbittorrent-Web      
+      # - 9117:9117 # Jackett
+      # - 8989:8989 # Sonarr
+      # - 9696:9696 # Prowlarr
+    volumes:
+      - ./gluetun:/gluetun
+    environment:
+      # See https://github.com/qdm12/gluetun-wiki/tree/main/setup#setup
+      - VPN_SERVICE_PROVIDER="private internet access"
+      - VPN_TYPE=openvpn
+      # OpenVPN:
+      - OPENVPN_USER=XXXXXXXXX
+      - OPENVPN_PASSWORD=XXXXXXX
+      - OPENVPN_VERBOSITY=0
+      - SERVER_REGIONS="US Chicago"
+      - VPN_PORT_FORWARDING=on
+      - PRIVATE_INTERNET_ACCESS_VPN_PORT_FORWARDING=on
+      - PRIVATE_INTERNET_ACCESS_VPN_PORT_FORWARDING_STATUS_FILE=/gluetun/forwarded_port.txt
+      - TZ=America/Detroit
+      # Server list updater
+      # See https://github.com/qdm12/gluetun-wiki/blob/main/setup/servers.md#update-the-vpn-servers-list
+      - UPDATER_PERIOD=24h
+      - OPENVPN_FLAGS=--fast-io --sndbuf 1024000 --rcvbuf 1024000 --comp-lzo no # you could start with 512000 for the send and recieve buffer and experiment a little to see performance  
+      - OPENVPN_CIPHERS=aes-128-gcm
+  qbittorrent-mike:
+    image: lscr.io/linuxserver/qbittorrent
+    restart: unless-stopped
+    # container_name: qbittorrent
+    network_mode: "service:gluetun"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Detroit
+      - WEBUI_PORT=8889
+      - PORT_FILE=/gluetun/forwarded_port.txt
+    volumes:
+      - ./gluetun:/gluetun
+      - ./qbittorrent:/config
+      - torrentnfs:/downloads
+    depends_on:
+      - gluetun
+volumes:
+  torrentnfs:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=10.0.1.10
+      device: :/volume1/torrents      

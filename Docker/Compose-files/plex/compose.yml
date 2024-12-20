@@ -32,9 +32,18 @@ services:
       - /dev/dri:/dev/dri
       
 volumes:
-  plexmedia:
+  # Plex Media on NFS share
+  #mediaVol:
+  #  driver: local
+  #  driver_opts:
+  #    type: nfs
+  #    o: addr=192.168.1.xxx
+  #    device: :/nfs/PlexMedia
+
+  # Plex Media in host path
+  mediaVol:
     driver: local
     driver_opts:
-      type: nfs
-      o: addr=10.0.1.10
-      device: :/volume1/PlexMedia
+      type: none
+      o: bind
+      device: /path_to_media_folder
