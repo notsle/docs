@@ -13,7 +13,7 @@ services:
       - '32414:32414/udp'
     environment:
       - TZ=America/Detroit
-      - 'ADVERTISE_IP=https://[REPLACE WITH FQDN or IP]'
+      - 'ADVERTISE_IP=http://[REPLACE WITH FQDN or IP]:32400'
       - CHANGE_CONFIG_DIR_OWNERSHIP=true
       - HOME=/config
       - GUID=1000
