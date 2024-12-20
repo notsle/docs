@@ -25,7 +25,7 @@ services:
       #- PLEX_CLAIM=claim-XXXXXXXXXXXXXX
     volumes:
       - ./config:/config
-      - plexmedia:/data
+      - mediaVol:/data
       - ./transcode:/transcode
     image: 'plexinc/pms-docker:latest'
     devices:
